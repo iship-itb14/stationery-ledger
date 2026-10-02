@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Stationery Ledger ✏️</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--bg:#fff3f8;--card:#fffdfe;--ink:#5b3a5e;--mut:#8f6f8d;--line:#f5cde0;--hl:#ffe9a6;--red:#a98bff;--blue:#ff8fba;--dot:#ffd9e8;--shadow:#e6d9ff;--tape1:#bfe9d8;--tape2:#ffe9a6;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#2a1a2f;--card:#38233f;--ink:#ffe6f2;--mut:#d3a9c9;--line:#59365f;--dot:#3b2542;--shadow:#4a3470;--red:#c2adff;--blue:#ff9cc4}}
+:root[data-theme="dark"]{--bg:#2a1a2f;--card:#38233f;--ink:#ffe6f2;--mut:#d3a9c9;--line:#59365f;--dot:#3b2542;--shadow:#4a3470;--red:#c2adff;--blue:#ff9cc4}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}*{box-sizing:border-box}
+body{margin:0;background:var(--bg);background-image:radial-gradient(var(--dot) 3px,transparent 3.5px);background-size:26px 26px;color:var(--ink);font:17px/1.6 "Nunito","Trebuchet MS",sans-serif}
+h1,h2,h3,.k b,select,th{font-family:"Fredoka","Nunito","Trebuchet MS",sans-serif}
+main{max-width:1100px;margin:0 auto;padding:0 20px 60px}
+header{position:relative;padding:62px 0 18px}
+header::before{content:"";position:absolute;top:26px;left:-6px;width:150px;height:28px;transform:rotate(-3deg);border-radius:3px;opacity:.9;
+background:repeating-linear-gradient(45deg,var(--tape1) 0 10px,var(--tape2) 10px 20px)}
+h1{font-size:clamp(36px,6.4vw,64px);line-height:1.05;margin:0 0 10px;font-weight:600}
+h1 mark{background:linear-gradient(transparent 58%,var(--hl) 58%);color:inherit;padding:0 6px;border-radius:6px}
+header p{max-width:62ch;color:var(--mut);margin:0}
+.bar{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin:26px 0 14px;font-weight:700}
+select{font-size:16px;padding:9px 16px;border:2px solid var(--blue);background:var(--card);color:var(--ink);border-radius:999px;cursor:pointer}
+select:focus-visible{outline:3px solid var(--red);outline-offset:2px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px}
+.k{background:var(--card);border:2px dashed var(--line);padding:14px 16px;border-radius:20px;box-shadow:4px 4px 0 var(--shadow)}
+.k b{font-size:28px;display:block;color:var(--blue)}.k span{color:var(--mut);font-size:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,480px),1fr));gap:20px;margin-top:20px}
+.card{background:var(--card);border:2px dashed var(--line);padding:20px;border-radius:24px;min-width:0;box-shadow:5px 5px 0 var(--shadow)}
+.card h2{font-size:20px;margin:0 0 2px;font-weight:600}.card p.s{margin:0 0 10px;color:var(--mut);font-size:14px}
+.cv{position:relative;height:300px}.wide{grid-column:1/-1}.note{color:var(--mut);font-size:14px;padding:10px 0}
+table{border-collapse:collapse;width:100%;font-size:14.5px}th,td{text-align:left;padding:8px 10px;border-bottom:2px dotted var(--line)}.sc{overflow-x:auto}
+h3{font-size:26px;margin:44px 0 8px;font-weight:600}
+.find{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:16px}
+.find div{background:var(--card);border-radius:20px;padding:14px 16px;font-size:16px;border:2px solid var(--line)}
+.find div:nth-child(3n+1){background:#ffe8f1}.find div:nth-child(3n+2){background:#efe8ff}.find div:nth-child(3n){background:#e4f7ee}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .find div:nth-child(n){background:var(--card)}}
+.find b{font-family:"Fredoka",sans-serif;font-weight:600;color:#5b3a5e;font-size:17px}.find div{color:#5b3a5e}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .find b,:root:not([data-theme="light"]) .find div{color:var(--ink)}}
+footer{margin-top:40px;color:var(--mut);font-size:14px;max-width:80ch}
+</style></head><body><main>
+<header><h1>The <mark>Stationery</mark> Ledger ✏️</h1>
+<p id="intro"></p></header>
+<div class="bar"><label for="cat">Product type</label><select id="cat"></select></div>
+<div class="kpis" id="kpis"></div>
+<div class="grid">
+<div class="card"><h2>What things cost</h2><p class="s">Median listing price (USD) by product type</p><div class="cv"><canvas id="c1"></canvas></div></div>
+<div class="card"><h2>Does paying more buy a better rating?</h2><p class="s">Sample of listings; price on a log scale</p><div class="cv"><canvas id="c2"></canvas></div></div>
+<div class="card wide"><h2>When reviews are written</h2><p class="s">Reviews per month relative to an average month (1.0), 2013 to 2022. Reviews follow purchases, so read this as a hint about buying.</p><div class="cv"><canvas id="c3"></canvas></div></div>
+<div class="card"><h2>Best-rated brands</h2><p class="s">Rating averaged over each brand's listings, weighted by number of ratings</p><div class="cv"><canvas id="c4"></canvas></div></div>
+<div class="card"><h2>What unhappy buyers write about</h2><p class="s">Share of 1 and 2 star reviews that mention each problem</p><div class="cv"><canvas id="c5"></canvas></div></div>
+<div class="card"><h2>The bulk discount</h2><p class="s">Change in price per item when pack size doubles, read from listing titles</p><div class="cv"><canvas id="c6"></canvas></div></div>
+<div class="card"><h2>Hidden gems</h2><p class="s">Rated 4.6 or higher, under the median price for their type, fewer than 400 ratings</p><div class="sc"><table id="gems"></table></div></div>
+</div>
+<h3>What the analysis found</h3><div class="find" id="find"></div>
+<footer id="foot"></footer>
+</main>
+<script>
+const R=__DATA__;
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const med=a=>{a=[...a].sort((x,y)=>x-y);const m=a.length>>1;return a.length?(a.length%2?a[m]:(a[m-1]+a[m])/2):0};
+const fmt=n=>n.toLocaleString('en-US');
+const pw=p=>p<0.001?'p < 0.001':'p = '+p.toFixed(3);
+const types=Object.keys(R.types).sort();
+const sel=document.getElementById('cat');
+sel.innerHTML='<option value="">All types</option>'+types.map(c=>`<option>${c}</option>`).join('');
+document.getElementById('intro').textContent=`${fmt(R.n_products)} real Amazon listings from ${fmt(R.n_brands)} brands, plus ${fmt(R.n_reviews)} customer reviews. Pick a product type to see what it costs, how it is rated, and what buyers complain about.`;
+const charts={};
+function draw(id,cfg,empty){const el=document.getElementById(id),box=el.parentElement;charts[id]&&charts[id].destroy();
+ let n=box.querySelector('.note');n&&n.remove();el.style.display='';
+ if(empty){el.style.display='none';box.insertAdjacentHTML('beforeend','<div class="note">'+empty+'</div>');return}
+ Chart.defaults.color=css('--mut');Chart.defaults.font.family='"Nunito",sans-serif';
+ cfg.options={responsive:true,maintainAspectRatio:false,...cfg.options};charts[id]=new Chart(el,cfg)}
+const grid={color:css('--line')},noleg={legend:{display:false}};
+function render(){
+ const c=sel.value,T=c?R.types[c]:null;
+ const all=Object.values(R.types),np=c?T.n:R.n_products,rt=c?T.ratings:all.reduce((s,t)=>s+t.ratings,0);
+ const mr=c?T.mean_rating:all.reduce((s,t)=>s+t.mean_rating*t.n,0)/R.n_products,mp=c?T.median_price:R.median_price;
+ document.getElementById('kpis').innerHTML=[[fmt(np),'listings'],['$'+mp.toFixed(2),'median price'],[mr.toFixed(2),'average rating'],[(rt/1e6).toFixed(2)+'M','ratings in total'],
+  [c?'$'+T.median_unit.toFixed(2):fmt(R.n_brands),c?'median price per item':'brands']].map(([a,b])=>`<div class="k"><b>${a}</b><span>${b}</span></div>`).join('');
+ const bc=types.map(k=>[k,R.types[k].median_price]).sort((a,b)=>b[1]-a[1]);
+ draw('c1',{type:'bar',data:{labels:bc.map(x=>x[0]),datasets:[{data:bc.map(x=>x[1]),backgroundColor:bc.map(x=>x[0]===c?css('--red'):css('--blue'))}]},options:{indexAxis:'y',plugins:noleg,scales:{x:{grid},y:{grid:{display:false}}}}});
+ const pts=R.sample.filter(r=>!c||r[0]===c).map(r=>({x:r[2],y:r[3],t:r[5],b:r[1]}));
+ draw('c2',{type:'scatter',data:{datasets:[{data:pts,backgroundColor:css('--blue')+'66',pointRadius:3}]},options:{plugins:{...noleg,tooltip:{callbacks:{label:t=>`${t.raw.b}: $${t.raw.x}, ${t.raw.y} stars`}}},scales:{x:{type:'logarithmic',title:{display:true,text:'Price (USD)'},grid},y:{min:2.5,max:5,title:{display:true,text:'Average rating'},grid}}}});
+ const s=R.seasonality[c||'All'],mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+ draw('c3',{type:'line',data:{labels:mo,datasets:[{data:s,borderColor:css('--red'),backgroundColor:css('--hl')+'88',fill:true,tension:.3,borderWidth:2,pointRadius:3}]},options:{plugins:noleg,scales:{x:{grid:{display:false}},y:{min:.6,grid}}}},s?null:'Not enough reviews of this type in the sample to show a monthly pattern.');
+ const agg={};R.brand_rows.filter(r=>!c||r[0]===c).forEach(r=>{const a=agg[r[1]]||(agg[r[1]]={n:0,w:0,k:0});a.n+=r[2];a.w+=r[3]*r[5];a.k+=r[5]});
+ const br=Object.entries(agg).filter(([,a])=>a.n>=(c?3:8)).map(([k,a])=>[k+' ('+a.n+')',a.w/a.k]).sort((a,b)=>b[1]-a[1]).slice(0,10);
+ draw('c4',{type:'bar',data:{labels:br.map(x=>x[0]),datasets:[{data:br.map(x=>x[1]),backgroundColor:css('--blue')}]},options:{indexAxis:'y',plugins:noleg,scales:{x:{min:4,max:5,grid},y:{grid:{display:false}}}}},br.length?null:'No brand has enough listings of this type.');
+ let ng={};if(c&&R.aspects[c])ng=R.aspects[c].neg;else if(!c){let tot=0;Object.values(R.aspects).forEach(a=>{tot+=a.neg_n;Object.entries(a.neg).forEach(([k,v])=>ng[k]=(ng[k]||0)+v*a.neg_n)});Object.keys(ng).forEach(k=>ng[k]/=tot)}
+ delete ng['Smooth writing'];const ak=Object.keys(ng).sort((a,b)=>ng[b]-ng[a]);
+ draw('c5',{type:'bar',data:{labels:ak,datasets:[{data:ak.map(k=>ng[k]),backgroundColor:css('--red')}]},options:{indexAxis:'y',plugins:noleg,scales:{x:{title:{display:true,text:'% of 1 to 2 star reviews'},grid},y:{grid:{display:false}}}}},ak.length?null:'Not enough reviews of this type in the sample.');
+ const d=Object.entries(R.pack_discount_per_doubling).sort((a,b)=>a[1]-b[1]);
+ draw('c6',{type:'bar',data:{labels:d.map(x=>x[0]),datasets:[{data:d.map(x=>x[1]),backgroundColor:d.map(x=>x[0]===c?css('--red'):css('--blue'))}]},options:{indexAxis:'y',plugins:noleg,scales:{x:{title:{display:true,text:'% change in price per item'},grid},y:{grid:{display:false}}}}});
+ const g=R.gems.filter(r=>!c||r[0]===c);
+ document.getElementById('gems').innerHTML=g.length?'<tr><th>Product</th><th>Brand</th><th>Price</th><th>Rating</th><th>Ratings</th></tr>'+g.map(r=>`<tr><td>${r[1]}</td><td>${r[2]}</td><td>$${r[3]}</td><td>${r[4]}</td><td>${r[5]}</td></tr>`).join(''):'<tr><td>No hidden gems found for this type.</td></tr>';
+}
+sel.onchange=render;render();matchMedia('(prefers-color-scheme: dark)').onchange=render;
+const pr=R.price_rating_by_type,dis=R.pack_discount_per_doubling,dv=Object.values(dis),a=R.aspects,m=R.model,tm=R.text_model;
+document.getElementById('find').innerHTML=[
+ ['Almost everything is rated 4 or 5 stars',`Average rating is ${R.mean_rating} and ${(R.share_4plus*100).toFixed(0)}% of listings score 4.0 or higher. With so little spread, ratings separate bad products from good ones better than good from great.`],
+ ['Price barely predicts rating',`Spearman rho is only ${R.price_rating.rho} across all listings (${pw(R.price_rating.p)}). It is stronger for washi tape (${pr['Washi tape']}), colored pencils (${pr['Colored pencil']}) and fountain pens (${pr['Fountain pen']}), and near zero for mechanical pencils (${pr['Mechanical pencil']}).`],
+ ['Bulk packs cut the unit price a lot',`Doubling the pack size lowers the price per item by ${Math.round(-Math.max(...dv))} to ${Math.round(-Math.min(...dv))}% depending on type. Pack size is read from titles, so some of this is parsing noise.`],
+ ['Japanese brands rate slightly higher',`Brands such as Pilot, Pentel, Zebra and uni-ball average ${R.japan.diff} stars above other brands of the same product type (${pw(R.japan.p)}). That is a small gap, and it does not prove higher quality.`],
+ ['Cheap build and scratchy writing top the complaints',`In gel pen 1 and 2 star reviews, ${a['Gel pen'].neg['Cheap or flimsy']}% say cheap or flimsy and ${a['Gel pen'].neg['Scratchy or skips']}% say scratchy or skipping. For fountain pens those figures are ${a['Fountain pen'].neg['Cheap or flimsy']}% and ${a['Fountain pen'].neg['Scratchy or skips']}%.`],
+ ['Ink running dry is the sign of a dud',`Words like dried, dry, returned and waste top the list of terms that separate 1 and 2 star reviews from 4 and 5 star ones. A text model separates them with AUC ${tm.auc}, though that is partly because star ratings and wording go together.`],
+ ['Reviews peak around December and January',`Notebook and sticky note reviews rise at the end of the year and again in August, the start of the school year.`],
+ ['Review volume is the strongest signal of a weak product',`A gradient boosting model flags listings rated under 4.2 stars with AUC ${m.auc} (5-fold CV; ${(m.base_rate*100).toFixed(0)}% of listings are that low). Number of ratings, product type and brand size matter most. Price matters little.`]
+].map(([x,y])=>`<div><b>${x}</b><br>${y}</div>`).join('');
+document.getElementById('foot').innerHTML='Source: Amazon Reviews 2023 (McAuley Lab, UC San Diego), Office Products and Arts, Crafts and Sewing item metadata, plus the first 60,000 matching Office Products reviews. Product types are assigned from title keywords, so some listings are mislabelled. The review sample is not random and is not a count of sales. Findings describe Amazon listings, not the whole stationery market, and are correlations rather than causes.';
+</script></body></html>

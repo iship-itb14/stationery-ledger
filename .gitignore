@@ -1,0 +1,4 @@
+*.jsonl
+__pycache__/
+.DS_Store
+data/clean_products.csv
