@@ -67,8 +67,7 @@ footer{margin-top:40px;color:var(--mut);font-size:14px;max-width:80ch}
 <div class="card wide"><h2>When reviews are written</h2><p class="s">Reviews per month relative to an average month (1.0), 2013 to 2022. Reviews follow purchases, so read this as a hint about buying.</p><div class="cv"><canvas id="c3"></canvas></div></div>
 <div class="card"><h2>Best-rated brands</h2><p class="s">Rating averaged over each brand's listings, weighted by number of ratings</p><div class="cv"><canvas id="c4"></canvas></div></div>
 <div class="card"><h2>What unhappy buyers write about</h2><p class="s">Share of 1 and 2 star reviews that mention each problem</p><div class="cv"><canvas id="c5"></canvas></div></div>
-<div class="card"><h2>The bulk discount</h2><p class="s">Change in price per item when pack size doubles, read from listing titles</p><div class="cv"><canvas id="c6"></canvas></div></div>
-<div class="card"><h2>Hidden gems</h2><p class="s">Rated 4.6 or higher, under the median price for their type, fewer than 400 ratings</p><div class="sc"><table id="gems"></table></div></div>
+<div class="card wide"><h2>The bulk discount</h2><p class="s">Change in price per item when pack size doubles, read from listing titles</p><div class="cv"><canvas id="c6"></canvas></div></div>
 </div>
 </section>
 <section id="p-findings" class="page"><h3>Six things we learned</h3><p class="s" style="color:var(--mut)">Pick a finding. Each one comes with a plain-English takeaway, a chart you can play with, and how much to trust it.</p>
@@ -82,7 +81,8 @@ footer{margin-top:40px;color:var(--mut);font-size:14px;max-width:80ch}
 <div class="row"><input id="xq" placeholder="Search title or brand" aria-label="Search"><select id="xt" aria-label="Type"></select>
 <select id="xr" aria-label="Minimum rating"><option value="0">Any rating</option><option>4</option><option>4.5</option><option>4.7</option></select>
 <input id="xp" type="number" min="1" placeholder="Max price $" style="width:140px" aria-label="Max price"></div>
-<div class="card"><p class="s" id="xc"></p><div class="sc"><table id="xtab"></table></div></div></section>
+<div class="card"><p class="s" id="xc"></p><div class="sc"><table id="xtab"></table></div></div><details class="card" style="margin-top:16px"><summary style="cursor:pointer;font:600 18px 'Fredoka',sans-serif">Hidden gems (experimental)</summary>
+<p class="s" style="margin-top:10px">Rated 4.6 or higher, priced under the median for their type, with fewer than 400 ratings. This is a rough filter: it can surface multipacks and refills, so treat it as a starting point. Follows the type chosen above.</p><div class="sc"><table id="gems"></table></div></details></section>
 <section id="p-methods" class="page"><h3>Methods and data</h3><div class="grid" id="mg"></div></section>
 <footer id="foot"></footer>
 </main>
@@ -123,8 +123,6 @@ function render(){
  draw('c5',{type:'bar',data:{labels:ak,datasets:[{data:ak.map(k=>ng[k]),backgroundColor:css('--red')}]},options:{indexAxis:'y',plugins:noleg,scales:{x:{title:{display:true,text:'% of 1 to 2 star reviews'},grid},y:{grid:{display:false}}}}},ak.length?null:'Not enough reviews of this type in the sample.');
  const d=Object.entries(R.pack_discount_per_doubling).sort((a,b)=>a[1]-b[1]);
  draw('c6',{type:'bar',data:{labels:d.map(x=>x[0]),datasets:[{data:d.map(x=>x[1]),backgroundColor:d.map(x=>x[0]===c?css('--red'):css('--blue'))}]},options:{indexAxis:'y',plugins:noleg,scales:{x:{title:{display:true,text:'% change in price per item'},grid},y:{grid:{display:false}}}}});
- const g=R.gems.filter(r=>!c||r[0]===c);
- document.getElementById('gems').innerHTML=g.length?'<tr><th>Product</th><th>Brand</th><th>Price</th><th>Rating</th><th>Ratings</th></tr>'+g.map(r=>`<tr><td>${r[1]}</td><td>${r[2]}</td><td>$${r[3]}</td><td>${r[4]}</td><td>${r[5]}</td></tr>`).join(''):'<tr><td>No hidden gems found for this type.</td></tr>';
 }
 sel.onchange=render;
 
@@ -177,6 +175,8 @@ function renderEx(){const q=document.getElementById('xq').value.toLowerCase(),t=
  document.getElementById('xc').textContent=`${rows.length} of ${R.sample.length} sampled listings match (showing up to 60)`;
  const H=[['Product',5],['Brand',1],['Type',0],['Price',2],['Rating',3],['Ratings',4]];
  document.getElementById('xtab').innerHTML='<tr>'+H.map(h=>`<th data-k="${h[1]}">${h[0]}${sk===h[1]?(sd>0?' ▲':' ▼'):''}</th>`).join('')+'</tr>'+rows.slice(0,60).map(r=>`<tr><td>${esc(r[5])}</td><td>${esc(r[1])}</td><td>${r[0]}</td><td>$${r[2]}</td><td>${r[3]}</td><td>${fmt(r[4])}</td></tr>`).join('');
+ const g=R.gems.filter(r=>!xt.value||r[0]===xt.value).slice(0,12);
+ document.getElementById('gems').innerHTML=g.length?'<tr><th>Product</th><th>Type</th><th>Price</th><th>Rating</th><th>Ratings</th></tr>'+g.map(r=>`<tr><td>${esc(r[1])}</td><td>${r[0]}</td><td>$${r[3]}</td><td>${r[4]}</td><td>${r[5]}</td></tr>`).join(''):'<tr><td>No picks for this type.</td></tr>';
  document.querySelectorAll('#xtab th').forEach(h=>h.onclick=()=>{const k=+h.dataset.k;sd=sk===k?-sd:-1;sk=k;renderEx()})}
 ['xq','xt','xr','xp'].forEach(id=>document.getElementById(id).oninput=renderEx);
 // methods
