@@ -12,3 +12,7 @@ Deploy: `site/index.html` is one static file. GitHub Pages (serve /site) or drag
 Limitations: product types come from title keywords; reviews are the first 60k in the source file (not random);
 review dates are not sales; Amazon only; ratings are bunched at 4 to 5 stars; correlations only.
 See scripts/README_data_prep.md for how the CSVs were made.
+
+## Site pages
+Overview (filterable dashboard) | Key findings (six interactive findings with evidence ratings) | Review insights (complaints vs praise, key terms) | Product explorer (search and sort listings) | Methods & data (pipeline, results table, limitations).
+All five are views of one static `index.html`, switched with `#overview`, `#findings` etc.
